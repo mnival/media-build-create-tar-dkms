@@ -10,7 +10,7 @@ else
 	KERNEL_VERSION="$2"
 fi
 
-_DIR="$(ls -1d ../media-build-${KERNEL_VERSION}-${_TODAY}.* 2>/dev/null | egrep "media-build-${KERNEL_VERSION}-${_TODAY}.[0-9]+$")"
+_DIR="$(ls -1d ../media-build-${KERNEL_VERSION}+${_TODAY}.* 2>/dev/null | egrep "media-build-${KERNEL_VERSION}+${_TODAY}.[0-9]+$")"
 if [ $? -ne 0 ]
 then
 	PACKAGE_VERSION="${_TODAY}.1"
@@ -21,7 +21,7 @@ fi
 
 set -e
 	
-DKMS_NAME="media-build-${KERNEL_VERSION}-${PACKAGE_VERSION}"
+DKMS_NAME="media-build-${KERNEL_VERSION}+${PACKAGE_VERSION}"
 DKMS_TAR_NAME="${DKMS_NAME}.dkms_src.tgz"
 
 if [ -d ${_PWD}/../${DKMS_NAME} ]
