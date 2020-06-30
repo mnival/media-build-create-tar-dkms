@@ -3,7 +3,14 @@
 cd $(dirname $0)
 _PWD="$(pwd)"
 _TODAY="$(date +"%Y%m%d")"
-_DIR="$(ls -1d ../media-build-${_TODAY}.* 2>/dev/null | egrep "media-build-${_TODAY}.[0-9]+$")"
+if [ "x$2" == "x" ]
+then
+	KERNEL_VERSION="$(uname -r | sed 's/^\([0-9]\+\.[0-9]\+\).*$/\1/')"
+else
+	KERNEL_VERSION="$2"
+fi
+
+_DIR="$(ls -1d ../media-build-${KERNEL_VERSION}-${_TODAY}.* 2>/dev/null | egrep "media-build-${KERNEL_VERSION}-${_TODAY}.[0-9]+$")"
 if [ $? -ne 0 ]
 then
 	PACKAGE_VERSION="${_TODAY}.1"
@@ -14,9 +21,8 @@ fi
 
 set -e
 	
-DKMS_NAME="media-build-${PACKAGE_VERSION}"
+DKMS_NAME="media-build-${KERNEL_VERSION}-${PACKAGE_VERSION}"
 DKMS_TAR_NAME="${DKMS_NAME}.dkms_src.tgz"
-KERNEL_VERSION="$(uname -r | sed 's/^\([0-9]\+\.[0-9]\+\).*$/\1/')"
 
 if [ -d ${_PWD}/../${DKMS_NAME} ]
 then
@@ -31,8 +37,8 @@ cd media_build
 make download
 if [ "x$1" == "xpatch" ]
 then
-	curl -Os "https://github.com/torvalds/linux/compare/v${KERNEL_VERSION}...s-moch:saa716x-${KERNEL_VERSION}.diff"
-	curl -Os https://download.mn-home.fr/VDR/DVB/dvb-cwidx-v4l-dvb.diff
+	wget "https://github.com/torvalds/linux/compare/v${KERNEL_VERSION}...s-moch:saa716x-${KERNEL_VERSION}.diff"
+	wget "https://download.mn-home.fr/VDR/DVB/dvb-cwidx-v4l-dvb.diff"
 	sed -i 's#dvb/ttpci#pci/ttpci#g' dvb-cwidx-v4l-dvb.diff
 fi
 
