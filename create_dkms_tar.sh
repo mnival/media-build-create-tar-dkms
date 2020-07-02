@@ -3,14 +3,9 @@
 cd $(dirname $0)
 _PWD="$(pwd)"
 _TODAY="$(date +"%Y%m%d")"
-if [ "x$2" == "x" ]
-then
-	KERNEL_VERSION="$(uname -r | sed 's/^\([0-9]\+\.[0-9]\+\).*$/\1/')"
-else
-	KERNEL_VERSION="$2"
-fi
+KERNEL_VERSION="5.7"
 
-_DIR="$(ls -1d ../media-build-${KERNEL_VERSION}-${_TODAY}.* 2>/dev/null | egrep "media-build-${KERNEL_VERSION}-${_TODAY}.[0-9]+$")"
+_DIR="$(ls -1d ../media-build-${_TODAY}.* 2>/dev/null | egrep "media-build-${_TODAY}.[0-9]+$")"
 if [ $? -ne 0 ]
 then
 	PACKAGE_VERSION="${_TODAY}.1"
@@ -20,8 +15,8 @@ else
 fi
 
 set -e
-	
-DKMS_NAME="media-build-${KERNEL_VERSION}-${PACKAGE_VERSION}"
+
+DKMS_NAME="media-build-${PACKAGE_VERSION}"
 DKMS_TAR_NAME="${DKMS_NAME}.dkms_src.tgz"
 
 if [ -d ${_PWD}/../${DKMS_NAME} ]
@@ -35,19 +30,13 @@ git clone git://linuxtv.org/media_build.git
 cd media_build
 
 make download
-if [ "x$1" == "xpatch" ]
-then
-	wget "https://github.com/torvalds/linux/compare/v${KERNEL_VERSION}...s-moch:saa716x-${KERNEL_VERSION}.diff"
-	wget "https://download.mn-home.fr/VDR/DVB/dvb-cwidx-v4l-dvb.diff"
-	sed -i 's#dvb/ttpci#pci/ttpci#g' dvb-cwidx-v4l-dvb.diff
-fi
+wget "https://github.com/torvalds/linux/compare/v${KERNEL_VERSION}...s-moch:saa716x-${KERNEL_VERSION}.diff"
 
 cd ${_PWD}
 
 tar_files="*.inc "
 tar_files+="build_all.sh "
 tar_files+="dkms.conf "
-tar_files+="dkms_ver.conf "
 tar_files+="gen_dkms_dyn_conf.sh "
 tar_files+="Makefile.dkms "
 tar_files+="README_dkms "
@@ -57,6 +46,7 @@ tar_files+="config-media-build "
 
 cp -p ${tar_files} ../${DKMS_NAME}/media_build/
 cd ${_PWD}/../${DKMS_NAME}/media_build
+echo "PACKAGE_VERSION=${PACKAGE_VERSION}" > dkms_ver.conf
 
 tar_dirs="backports "
 tar_dirs+="devel_scripts "
@@ -68,12 +58,8 @@ tar_files+="INSTALL "
 tar_files+="Makefile "
 tar_files+="handle_updated_modules.sh "
 tar_files+="dkms_updated_modules.conf "
-if [ "x$1" == "xpatch" ]
-then
-	tar_files+="dvb-cwidx-v4l-dvb.diff "
-	tar_files+="v${KERNEL_VERSION}...s-moch:saa716x-${KERNEL_VERSION}.diff "
-fi
+tar_files+="dkms_ver.conf "
+tar_files+="v${KERNEL_VERSION}...s-moch:saa716x-${KERNEL_VERSION}.diff "
 
 tar -czf ${DKMS_TAR_NAME} ${tar_dirs} ${tar_files}
 mv ${DKMS_TAR_NAME} ${_PWD}/../
-

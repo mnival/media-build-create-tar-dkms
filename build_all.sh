@@ -63,15 +63,11 @@ function make_linux {
 		fi
 		make untar
 		make apply-patches
-		if [ -f dvb-cwidx-v4l-dvb.diff ]
-		then
-			cd linux
-			filterdiff -p1 -x 'Documentation/*' ../*...s-moch\:saa716x-*.diff | patch -p1
-#			patch <../dvb-cwidx-v4l-dvb.diff -p1
-			cd ../v4l
-			scripts/make_makefile.pl
-			cd ..
-		fi
+		cd linux
+		filterdiff -p1 -x 'Documentation/*' ../*...s-moch\:saa716x-*.diff | patch -p1
+		cd ../v4l
+		scripts/make_makefile.pl
+		cd ..
 	fi
 }
 
