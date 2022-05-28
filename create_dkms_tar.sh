@@ -3,7 +3,11 @@
 cd $(dirname $0)
 _PWD="$(pwd)"
 _TODAY="$(date +"%Y%m%d")"
-KERNEL_VERSION="5.7"
+if [ -z "$1" ]; then
+  KERNEL_VERSION="$(uname -r | grep -oP "^[0-9]*\.[0-9]*")"
+else
+  ERNEL_VERSION="$1"
+fi
 
 _DIR="$(ls -1d ../media-build-${_TODAY}.* 2>/dev/null | egrep "media-build-${_TODAY}.[0-9]+$")"
 if [ $? -ne 0 ]
